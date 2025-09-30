@@ -49,8 +49,8 @@ BEGIN
 
         SELECT [cst_id]
               ,[cst_key]
-              ,TRIM(cst_firstname) as cst_firstname -- Remove the spaces
-              ,TRIM(cst_lastname) as cst_lastname  -- Remove the spaces
+              ,TRIM(cst_firstname) as cst_firstname -- Remove unwanted spaces
+              ,TRIM(cst_lastname) as cst_lastname  -- Remove unwanted spaces
 
               --Normalizing the marital Stauts to a friendly formate
               ,CASE 
@@ -67,8 +67,8 @@ BEGIN
               END as cst_gndr
               ,[cst_create_date]
 
-              -- This Subquery filters all the records where the id is null, and in case the id is repeated, 
-              -- it will keep only the latest one by the creation date
+              -- This Subquery filters all the records where the id is null OR repeated, 
+              --  And, it keeps only the latest one by the creation date
           FROM (
                  SELECT *,
                  row_number() over(partition by cst_id order by cst_create_date DESC) as flag
@@ -96,6 +96,7 @@ BEGIN
             prd_end_dt      DATE,
             dwh_create_date DATETIME2 DEFAULT GETDATE()
         );*/
+
         -- Loading silver.crm_prd_info
         SET @start_time = GETDATE();
         PRINT '>> Truncating Table: silver.crm_prd_info';
@@ -119,7 +120,7 @@ BEGIN
             SUBSTRING(prd_key, 7, LEN(prd_key)) as prd_key, -- derived column
 
             prd_nm,
-            -- replacing all the nulls in the product cose columns with Zero
+            -- replacing null values with zero
             ISNULL(prd_cost,0) as prd_cost, 
 
             -- Normalizing the product line column with a friendly formate 
@@ -143,6 +144,7 @@ BEGIN
         PRINT '>> -------------';
          -- =======================================================================================
          -- =======================================================================================
+
          -- Re-Define the Table Structre as we created new columns
          /*IF OBJECT_ID('silver.crm_sales_details', 'U') IS NOT NULL
             DROP TABLE silver.crm_sales_details;
@@ -209,7 +211,7 @@ BEGIN
 
               ,[sls_quantity]
 
-              -- Handling the Sales price values and re-calculating it
+              -- Handling null and -ve prices and re-calculating it
               ,CASE 
                    WHEN sls_price IS NULL OR sls_price <= 0 
                         THEN sls_sales / NULLIF(sls_quantity, 0)
@@ -245,7 +247,7 @@ BEGIN
                    ELSE cid
                END AS cid
 
-               -- Replacing invalied birthday dates (greater than today) with NULL
+               -- -- Set future birthdates to NULL
               , CASE
                 WHEN bdate > GETDATE() THEN NULL
                 ELSE bdate
