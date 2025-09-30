@@ -1,4 +1,21 @@
+/*
+===============================================================================
+Stored Procedure: Load Bronze Layer (Source -> Bronze)
+===============================================================================
+Script Purpose:
+    This stored procedure loads data into the 'bronze' schema from external CSV files. 
+    It performs the following actions:
+    - Truncates the bronze tables before loading data.
+    - Uses the `BULK INSERT` command to load data from csv Files to bronze tables.
 
+Parameters:
+    None. 
+	  This stored procedure does not accept any parameters or return any values.
+
+Usage Example:
+    EXEC bronze.load_bronze;
+===============================================================================
+*/
 
 CREATE OR ALTER PROCEDURE bronze.load_bronze AS
 BEGIN
@@ -20,7 +37,7 @@ BEGIN
 			FIRSTROW = 2,
 			FIELDTERMINATOR = ',',
 			TABLOCK
-		)
+		);
 
 		PRINT '>> Truncating Table: bronze.crm_prd_info';
 		TRUNCATE TABLE bronze.crm_prd_info
@@ -31,7 +48,7 @@ BEGIN
 			FIRSTROW = 2,
 			FIELDTERMINATOR = ',',
 			TABLOCK
-		)
+		);
 
 
 		PRINT '>> Truncating Table: bronze.crm_sales_details';
@@ -43,7 +60,7 @@ BEGIN
 			FIRSTROW = 2,
 			FIELDTERMINATOR = ',',
 			TABLOCK
-		)
+		);
 
 		PRINT '------------------------------------------------';
 		PRINT 'Loading ERP Tables';
@@ -58,7 +75,7 @@ BEGIN
 			FIRSTROW = 2,
 			FIELDTERMINATOR = ',',
 			TABLOCK
-		)
+		);
 
 
 		PRINT '>> Truncating Table: bronze.erp_LOC_A101'; 
@@ -70,7 +87,7 @@ BEGIN
 			FIRSTROW = 2,
 			FIELDTERMINATOR = ',',
 			TABLOCK
-		)
+		);
 
 
 		PRINT '>> Truncating Table: bronze.erp_PX_CAT_G1V2';
@@ -82,7 +99,7 @@ BEGIN
 			FIRSTROW = 2,
 			FIELDTERMINATOR = ',',
 			TABLOCK
-		)
+		);
 	END TRY
 	BEGIN CATCH
 		PRINT '=========================================='
